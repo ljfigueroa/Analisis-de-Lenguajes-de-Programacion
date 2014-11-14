@@ -1,0 +1,213 @@
+\documentclass[a4paper,12pt]{article}
+
+\usepackage[left=1in,right=1in,top=1.2in,bottom=1.2in]{geometry}
+
+\usepackage{url,graphicx,tabularx,array,geometry}
+\usepackage{fontspec}
+\usepackage{polyglossia}
+\usepackage{stmaryrd}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{amsfonts}
+\usepackage{nccmath}
+\usepackage{minted}
+
+
+\setmainlanguage{spanish}
+
+\setlength{\parskip}{1ex} %--skip lines between paragraphs
+\setlength{\parindent}{0pt} %--don't indent paragraphs
+
+
+\newtheorem{theorem}{Theorem}%[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{conj}[theorem]{Conjecture}
+
+\begin{document}
+
+\title{Análisis de Lenguajes de Programación\\ 
+        Trabajo Práctico 4}
+\author{Lauro Figueroa}
+\date{13 de Noviembre de 2014}
+\maketitle
+
+\pagenumbering{gobble} 
+\newpage
+\pagenumbering{arabic}
+
+\iffalse
+\begin{fleqn}
+\begin{align*}
+    & \textrm{return } x \gg=  f
+\\ = \;    & \langle \text{definición de return} \rangle
+\end{align*}
+\end{fleqn}
+\fi
+
+\section*{Ejercicio 1. a)}
+Para poder probar que State es una monada, debo probar que $\gg=$ y $return$ cumplen
+las leyes de las mónadas.
+
+% ---- monda.1--------
+\begin{proof}
+Ley monad.1
+\begin{center}
+ return x $\gg=$ f = f x
+\end{center}
+%\end{proof}
+
+%\begin{proof}
+\hfill
+\begin{fleqn}
+\begin{equation} 
+\begin{split}
+  & \text{return x $\gg=$ f }\\
+  & =\langle \mbox{Definición de return} \rangle \\
+  & State \ (\backslash s \rightarrow (x,s)) \gg= f \\
+  & =\langle \mbox{Definición de}\gg= \rangle \\
+  & State \ (\backslash s' \rightarrow \mbox{let} \; (y,s'' ) = \mbox{runState} \ (State \ (\backslash s \to (x,s))) \ s' \\
+  & \hspace{70pt} \mbox{in  runState} \ (f \ y) \ s'')\\
+  & =\langle \mbox{runState}.State \ = \ \mbox{Id}  \rangle \\
+  & State \ (\backslash s' \rightarrow \mbox{let} \; (y,s'') = (\backslash s \to (x,s)) \ s' \\
+  & \hspace{70pt} \mbox{in  runState} \ (f \ y) \ s'')\\
+  & =\langle \beta \mbox{-contracción}  \rangle \\
+  & State \ (\backslash s' \rightarrow \mbox{let} \; (y,s'' ) = (x,s') \\
+  & \hspace{70pt} \mbox{in  runState} \ (f \ y) \ s'')\\
+  & =\langle \mbox{Sustitución por let}  \rangle \\
+  & State \ (\backslash s' \rightarrow \mbox{runState} \ (f \ x) \ s')\\
+  & =\langle \mbox{Extensionalidad}  \rangle \\
+  & State \ (\mbox{runState} \ (f \ x))\\
+  & =\langle \mbox{Composición}  \rangle \\
+  & State.\mbox{runState} \ (f \ x)\\
+  & =\langle State.\mbox{runState} \ = \ \mbox{Id}  \rangle \\
+  & f \ x\\
+\end{split}
+\end{equation}
+\end{fleqn}
+\end{proof}
+
+% ---- monda.2--------
+\newpage
+\begin{proof}
+Ley monad.2
+\begin{center}
+ t $\gg=$ return \; = \ t
+\end{center}
+
+La clase Monad establece que ($\gg=$) :: Monad m $\Rightarrow$ m a $\to$ (a $\to$ m b) $\to$ m b,
+entonces t :: m a y  puedo escribir como t = $State$ h para algún h. Luego
+
+\begin{fleqn}
+\begin{equation} 
+\begin{split}
+  & State \ \mbox{h} \gg= \text{return}\\
+  & =\langle \mbox{Definición de}\gg= \rangle \\
+  & State \ (\backslash s \to \mbox{let} \; (x,s') = \mbox{runState} \ (State \ \mbox{h}) \ s \\
+  & \hspace{67pt} \mbox{in  runState} \ (\mbox{return} \ x) \ s')\\
+  & =\langle \mbox{runState}.State \ = \ \mbox{Id}  \rangle \\
+  & State \ (\backslash s \to \mbox{let} \; (x,s') = \mbox{h} \ s \\
+  & \hspace{67pt} \mbox{in  runState} \ (\mbox{return} \ x) \ s')\\
+  & =\langle \mbox{Definición return}  \rangle \\
+  & State \ (\backslash s \to \mbox{let} \; (x,s') = \mbox{h} \ s \\
+  & \hspace{67pt} \mbox{in  runState} \ (State \ (\backslash s''\to (x,s''))) \ s')\\
+  & =\langle \mbox{runState}.State \ = \ \mbox{Id}  \rangle \\
+  & State \ (\backslash s \to \mbox{let} \; (x,s') = \mbox{h} \ s\\
+  & \hspace{67pt} \mbox{in} \ (\backslash s''\to (x,s'')) \ s')\\
+  & =\langle \beta \mbox{-contracción}  \rangle \\
+  & State \ (\backslash s \to \mbox{let} \; (x,s') = \mbox{h} \ s\\
+  & \hspace{67pt} \mbox{in} \ (x,s'))\\
+  & =\langle \mbox{Sustitución por let}  \rangle \\
+  & State \ (\backslash s \to  \mbox{h} \ s)\\
+  & =\langle \mbox{Extensionalidad}  \rangle \\
+  & State \ \mbox{h}
+\end{split}
+\end{equation}
+\end{fleqn}
+\end{proof}
+
+% ---- monda.3--------
+\newpage
+\begin{proof}
+Ley monad.3
+\begin{center}
+ (t $\gg=$ f) $\gg=$ g \; = \; t $\gg=$ ($\backslash$x $\to$ f x  $\gg=$ g)
+\end{center}
+
+La clase Monad establece que ($\gg=$) :: Monad m $\Rightarrow$ m a $\to$ (a $\to$ m b) $\to$ m b,
+entonces t :: m a y  puedo escribir como t = $State$ h para algún h. Luego
+
+\begin{fleqn}
+\begin{equation} 
+\begin{split}
+  & (State \ \mbox{h} \gg= f) \gg= g\\
+  & =\langle \mbox{Definición de}\gg= \rangle \\
+  & (State \ (\backslash s \to \mbox{let} \; (x,s') = \mbox{runState} \ (State \ \mbox{h}) \ s \\
+  & \hspace{71pt} \mbox{in  runState} \ (f \ x) \ s')) \gg=  \ g \\
+  & =\langle \mbox{runState}.State \ = \ \mbox{Id}  \rangle \\
+  & (State \ (\backslash s \to \mbox{let} \; (x,s') =  \mbox{h} \ s \\
+  & \hspace{71pt} \mbox{in  runState} \ (f \ x) \ s')) \gg=  \ g \\
+  & =\langle \mbox{Definición} \gg=  \rangle \\
+  & State \ (\backslash r \to \mbox{let} \; (y,r') = \mbox{runState} \ (State \ (\backslash s \to \mbox{let} \; (x,s') = \mbox{h} \ s \\
+  & \hspace{248pt} \mbox{in  runState} \ (f \ x) \ s')) \ r \\
+  & \hspace{68pt} \mbox{in  runState} \ (g \ y) \ r' )\\
+  & =\langle \mbox{runState}.State \ = \ \mbox{Id}  \rangle \\
+  & State \ (\backslash r \to \mbox{let} \; (y,r') = (\backslash s \to \mbox{let} \; (x,s') = \mbox{h} \ s \\
+  & \hspace{163pt} \mbox{in  runState} \ (f \ x) \ s') \ r\\
+  & \hspace{68pt} \mbox{in  runState} \ (g \ y) \ r' )\\
+  & =\langle \beta \mbox{-contracción}  \rangle \\
+  %& =\langle \mbox{Abstracción}  \rangle \\
+  & State \ (\backslash r \to \mbox{let} \; (y,r') = \mbox{let} \; (x,s') = \mbox{h} \ r \\
+  & \hspace{128pt} \mbox{in  runState} \ (f \ x) \ r\\
+  & \hspace{65pt} \mbox{in  runState} \ (g \ y) \ r' )\\
+  & =\langle \mbox{Sustitución por let}  \rangle \\
+  & State \ (\backslash r \to \mbox{let} \; (x,s') = \mbox{h} \ r \\
+  & \hspace{83pt} (y,r') = \mbox{runState} \ (f \ x) \ s'\\
+  & \hspace{68pt} \mbox{in  runState} \ (g \ y) \ r' )\\
+  & =\langle \mbox{Sustitución por let}  \rangle \\
+  & State \ (\backslash r \to \mbox{let} \; (x,s') = \mbox{h} \ r \\
+  & \hspace{68pt} \mbox{in let} \ (y,r') = \mbox{runState} \ (f \ x) \ s'\\
+  & \hspace{82pt} \mbox{in  runState} \ (g \ y) \ r' )\\
+\end{split}
+\end{equation}
+\end{fleqn}
+
+\begin{fleqn}
+\begin{equation*} 
+\begin{split}
+  & =\langle \mbox{Abstracción}  \rangle \\
+  & State \ (\backslash r \to \mbox{let} \; (x,s') = \mbox{h} \ r \\
+  & \hspace{68pt} \mbox{in} \ (\backslash s \to \mbox{let} \ (y,r') = \mbox{runState} \ (f \ x) \ s\\
+  & \hspace{116pt} \mbox{in  runState} \ (g \ y) \ r' ) \ s')\\
+  & =\langle \mbox{runState.} State \ = \ \mbox{Id}  \rangle \\
+  & State \ (\backslash r \to \mbox{let} \; (x,s') = \mbox{h} \ r \\
+  & \hspace{68pt} \mbox{in runState} \ (State \ (\backslash s \to \mbox{let} (y,r') = \mbox{runState} \ (f \ x) \ s\\
+  & \hspace{202pt} \mbox{in  runState} \ (g \ y) \ r' ) \ s'))\\
+  & =\langle \mbox{Definición de}\gg= \rangle \\
+  & State \ (\backslash r \to \mbox{let} \; (x,s') = \mbox{h} \ r \\
+  & \hspace{68pt} \mbox{in runState} \ (f \ x \gg= \ g) \ s')\\
+  & =\langle \mbox{Abstracción}  \rangle \\
+  & State (\backslash r \to \mbox{let} \; (x,s') = \mbox{h} \ r \\
+  & \hspace{62pt} \mbox{in runState} \ ((\backslash x \to (f \ x \gg= \ g) \ x)\ s')\\
+  & =\langle \mbox{Definición de}\gg= \rangle \\
+  & State \ \mbox{h} \gg= (\backslash x \to (f \ x \gg= \ g))\\
+\end{split}
+\end{equation*}
+\end{fleqn}
+\end{proof}
+
+
+Por lo tanto como el constructor $State$ cumple con las tres ecuaciones de mónadas, es una mónada.
+
+
+\newpage
+\section*{Codigo fuente}
+
+\subsection*{Eval1.hs}
+\inputminted[fontsize=\footnotesize]{haskell}{Eval1.hs}
+\subsection*{Eval2.hs}
+\inputminted[fontsize=\footnotesize]{haskell}{Eval2.hs}
+\subsection*{Eval3.hs}
+\inputminted[fontsize=\footnotesize]{haskell}{Eval3.hs}
+
+\end{document}
