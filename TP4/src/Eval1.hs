@@ -9,7 +9,7 @@ type Env = [(Variable,Int)]
 initState :: Env
 initState = []
 
--- Mónada estado
+-- Monada estado
 newtype State a = State { runState :: Env -> (a, Env) }
 
 instance Monad State where
@@ -17,7 +17,7 @@ instance Monad State where
     m >>= f = State (\s -> let (v, s') = runState m s in
                            runState (f v) s')
 
--- Clase para representar mónadas con estado de variables
+-- Clase para representar monadas con estado de variables
 class Monad m => MonadState m where
     -- Busca el valor de una variable
     lookfor :: Variable -> m Int
@@ -40,15 +40,22 @@ eval p = snd (runState (evalComm p) initState)
 -- Evalua un comando en un estado dado
 evalComm :: MonadState m => Comm -> m ()
 evalComm Skip = return ()
-evalComm (Let v e) = update v e
+evalComm (Let v e) = do exp <- evalIntExp e
+                        update v exp
 evalComm (Seq c o) = do evalComm c
                         evalComm o
-                        return ()
-evalComm 
+evalComm (Cond b c o) = do bexp <- evalBoolExp b
+                           case bexp of
+                                True -> evalComm c
+                                False -> evalComm o
+evalComm (While b c) = do bexp <- evalBoolExp b
+                          case bexp of
+                               False -> return ()
+                               True -> evalComm (Seq c (While b c)) 
+
 
 -- Evalua una expresion entera, sin efectos laterales
 evalIntExp :: MonadState m => IntExp -> m Int
---evalIntExp = undefined
 evalIntExp (Const i)   = return i
 evalIntExp (Var var)   = do v <- lookfor var
                             return v
