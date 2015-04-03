@@ -1,0 +1,196 @@
+% pdflatex -shell-escape Informe.tex
+\documentclass[a4paper,12pt]{article}
+\usepackage[spanish]{babel} % Soporte en español.
+%\usepackage[latin1]{inputenc} % Caracteres con acenshortrightarrows.
+\usepackage[utf8]{inputenc}
+\usepackage{semantic}
+\usepackage{listings}   %Importar codigo
+%\usepackage{amsmath}
+\usepackage{verbatim}
+\usepackage{latexsym}
+\usepackage{listingsutf8}
+\usepackage{minted}
+\usepackage{proof}
+\usepackage{ stmaryrd }
+\usepackage{ tipa }
+
+\lstset{ 
+  inputencoding=utf8/latin1,
+  basicstyle=\ttfamily \footnotesize,%\scriptsize, %\footnotesize,        % the size of the fonts that are used for the code
+  breakatwhitespace=false,         % sets if aushortrightarrowmatic breaks should only happen at whitespace
+  breaklines=false,                 % sets aushortrightarrowmatic line breaking
+  captionpos=t,                    % sets the caption-position shortrightarrow botshortrightarrowm
+  deletekeywords={...},            % if you want shortrightarrow delete keywords from the given language
+  escapeinside={\%*}{*)},          % if you want shortrightarrow add LaTeX within your code
+  extendedchars=true,              % lets you use non-ASCII characters; for 8-bits encodings only, does not work with UTF-8
+  keepspaces=true,                 % keeps spaces in text, useful for keeping indentation of code (possibly needs columns=flexible)
+  language=Haskell,                 % the language of the code
+  %morekeywords={*,...},            % if you want shortrightarrow add more keywords shortrightarrow the set
+  numbers=left,                    % where shortrightarrow put the line-numbers; possible values are (none, left, right)
+  numbersep=10pt,                   % how far the line-numbers are from the code
+  showspaces=false,                % show spaces everywhere adding particular underscores; it overrides 'showstringspaces'
+  showstringspaces=false,          % underline spaces within strings only
+  showtabs=false,                  % show tabs within strings adding particular underscores
+  stepnumber=1,                    % the step between two line-numbers. If it's 1, each line will be numbered
+  tabsize=1,                       % sets default tabsize shortrightarrow 2 spaces
+  title=\lstname                   % show the filename of files included with \lstinputlisting; also try caption instead of title
+}
+
+\begin{document}
+
+\title{Análisis de Lenguajes de Programación\\ 
+        Trabajo Práctico 3}
+\author{Lauro Figueroa}
+\date{9 de Octubre de 2014}
+\maketitle
+
+\pagenumbering{gobble} 
+\newpage
+\pagenumbering{arabic}
+
+\section*{Ejercicio 1}
+
+El término S esta definido de la siguiente forma: 
+\begin{minted}{text}
+   def S = \x:B->B->B.\y:B->B.\z:B.(x z) (y z)
+\end{minted}
+
+Dado S, le corresponde el siguiente árbol de derivación, donde defino $\Gamma$ como 
+$x: B \shortrightarrow B\shortrightarrow B, y: B\shortrightarrow B, z: B $
+para alivianar la notación del mismo.\\
+
+$$
+\vcenter{
+\infer[T-Abs]{\vdash \lambda x\colon B \shortrightarrow B\shortrightarrow B.  \lambda y\colon B\shortrightarrow B.\lambda z:B.(x z) (y z) \colon (B \shortrightarrow B \shortrightarrow B) \shortrightarrow (B \shortrightarrow B) \shortrightarrow B \shortrightarrow B}{
+  \infer[T-Abs]{x\colon B \shortrightarrow B\shortrightarrow B \vdash \lambda y\colon B\shortrightarrow B.\lambda z:B.(x z) (y z) \colon (B \shortrightarrow B) \shortrightarrow B \shortrightarrow B}{
+    \infer[T-Abs]{x\colon B \shortrightarrow B\shortrightarrow B,y\colon B\shortrightarrow B \vdash \lambda z:B.(x z) (y z) \colon B \shortrightarrow B }{
+        \infer[T-App]{\Gamma \vdash  (x z) (y z)\colon B}{ 
+              \infer[T-App]{ \Gamma \vdash (x z)\colon B \shortrightarrow B} {
+                \infer[T-Var]{\Gamma \vdash x\colon B \shortrightarrow B\shortrightarrow B} {x\colon B \shortrightarrow B\shortrightarrow B \in \Gamma}
+                &
+                \infer[T-Var]{\Gamma \vdash z\colon B} {x\colon B \in \Gamma}
+              }
+              &
+              \infer[T-App]{\Gamma \vdash (y z)\colon B} {
+                \infer[T-Var]{\Gamma \vdash y\colon B\shortrightarrow B} {y\colon B\shortrightarrow B \in \Gamma} {}
+                &
+                \infer[T-Var]{\Gamma \vdash z\colon B} {x\colon B \in \Gamma} {} 
+              }
+        }
+    }
+  }
+  }
+}
+$$
+
+
+\section*{Ejercicio 2}
+
+La función infer retorna un valor de tipo $ Either \ String \ Type $ para que
+el manejo de errores sea mas simple. Por ejemplo, en el caso que infiera un error de tipos devuelve 
+ una cadena tipo $String$ pero en el caso opuesto, donde el tipo del termino es inferido de 
+manera exitosa, retorna algo de tipo $Type$ y como ambos son distintos se debe usar un tipo de
+datos que nos deje representar valores con dos posibilidades, por estas razones se usa 
+$ Either \ String \ Type $ como tipo de retorno de infer. \\ \\
+La función $\gg=$ se encarga de propagar los errores y de guardar el último tipo inferido. Su 
+funcionamiento esta determinado por $either \ Left \ f \ v$ donde $v$ es un valor de tipo 
+$ Either \ String \ Type $ y f una función de $Type\to Either\ String\ Type$.
+Como $Left$ y $f$ son funciones que tienen el mismo tipo de
+retorno es el mismo tipo, el valor retornado por $\gg=$ es la apicacion de $Left$ sobre la 
+$string$ de $v$, que solo preserva su valor y  en cambio $f$ altera el valor de $type$. 
+Resultando en la devolución de un valor donde, si había ocurrido un error se sigue manteniendo
+la información y si se pudo inferir el tipo de manera correcta se actualiza el valor del tipo.
+
+
+
+\section*{Ejercicio 5}
+
+Dado el siguiente término  (let z = (($\lambda$x : $B$. x) as $B \to B$) in z) as $B \to B$ le
+corresponde el siguiente árbol de derivación de tipos:
+
+$$
+\vcenter {
+\infer[E-Ascribe] {\vdash (let\ z = ((\lambda x : B. x)\ as\ B \to B)\ in\ z)\ as\ B \to B : B\to B} {
+  \infer[T-Let] {\vdash let\ z = ((\lambda x : B. x)\ as\ B \to B)\ in\ z: B \to B} {     
+    \infer[E-Ascribe] {\vdash  ((\lambda x : B. x)\ as\ B \to B : B\to B} {
+      \infer[T-Abs] {\vdash ((\lambda x : B. x)\ : \ B \to B} {
+        \infer[T-Var] {x:B \vdash x:B} {x:B \in x:B}
+        }
+      }
+    & 
+    \infer[T-Var] {z:B\to B \vdash z:B\to B} {z:B\to B \in z:B\to B}
+    }
+  } 
+}
+$$
+
+El mismo término evaluado en el intérprete, tipa correctamente como se puede ver a continuación:
+
+
+\begin{minted}{text}
+ST> :type (let z = ((\x : B. x) as B -> B) in z) as B -> B
+B -> B
+\end{minted} 
+
+
+\section*{Ejercicio 7}
+
+Sean las siguientes reglas de evaluación para los pares donde el criterio es reducir 
+por completo $t_{1}$ para luego proceder a reducir  $t_{2}$:
+
+$$
+\vcenter {
+\infer[E-Tup_{1}] {(t_{1}, t_{2}) \to (t_{1}', t_{2})} {t_{1} \to t_{1}'}}
+\qquad 
+\vcenter {
+\infer[E-Tup_{2}] {(v, t_{2}) \to (v, t_{2}')} {t_{2} \to t_{2}'}}
+$$
+\\
+
+\section*{Ejercicio 9}
+
+Dado el siguiente término  fst (unit as Unit, $\lambda$x : (B, B). snd x) le
+corresponde el siguiente árbol de derivación de tipos:
+
+
+
+$$
+\vcenter {
+\infer[T-Fst] {fst\ (unit\ as\ Unit,\ \lambda x  : (B, B).\ snd\ x) : Unit } {
+  \infer[T-Pair] {\vdash (unit\ as\ Unit,\ \lambda x  : (B, B).\ snd\ x):(Unit,(B,B)\to B)} {
+    \infer[T-Ascribe] {\vdash unit\ as\ Unit : Unit \ } {
+       \infer[T-Unit] {\vdash unit : Unit} {}
+        }
+    &
+    \infer[T-Abs] {\vdash \lambda x  : (B, B).\ snd\ x):(B,B)\to B} {
+      \infer[T-Snd] {x:(B,B) \vdash snd\ x : B} {
+        \infer[T-Var] {x:(B,B) \vdash x:(B,B)} {x:(B,B) \in x:(B,B)}
+        }
+      }
+    }
+  } 
+}
+$$
+
+El mismo término evaluado en el intérprete, tipa correctamente como se puede ver a continuación:
+
+\begin{minted}{text}
+ST> :type fst (unit as Unit, \x : (B, B). snd x)
+Unit
+\end{minted}
+
+\newpage
+\section*{\centering Codigo fuente}
+\subsection*{Simplytyped.hs}
+\inputminted[fontsize=\footnotesize]{haskell}{Simplytyped.hs}
+\subsection*{PrettyPrinter.hs}
+\inputminted[fontsize=\footnotesize]{haskell}{PrettyPrinter.hs}
+\subsection*{Parse.y}
+\inputminted[fontsize=\footnotesize]{haskell}{Nparse.y}
+\subsection*{Common.hs}
+\inputminted[fontsize=\footnotesize]{haskell}{Common.hs}
+\subsection*{Ack.lam}
+\inputminted[fontsize=\footnotesize]{haskell}{Ack.lam}
+%\lstinputlisting{Untyped.hs}
+%\lstinputlisting{Sqrt.lam}
+\end{document}

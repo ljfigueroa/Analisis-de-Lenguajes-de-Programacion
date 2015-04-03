@@ -1,0 +1,7 @@
+def I = \x:B. x
+def K = \x:B.\y:B.x
+def S = \x:B->B->B.\y:B->B.\z:B.(x z) (y z)
+def D = let x = \x:B. x in x 
+def J = \x:Unit. x
+def H = fst (unit as Unit, \x : (B, B). snd x)
+

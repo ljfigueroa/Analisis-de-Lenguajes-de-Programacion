@@ -1,0 +1,5 @@
+def pred = \x:Nat. R 0 (\n:Nat. \y:Nat. y) x
+def sum  = \x:Nat.\y:Nat. R y (\n:Nat.\m:Nat. suc n) x
+def ack = \m:Nat.\n:Nat. (R (\x:Nat. suc x) (\g:Nat->Nat.\u:Nat. \x:Nat. sum  x (g (R (suc 0) (\x:Nat.\y:Nat. suc x) (pred n)))) m) n
+
+
