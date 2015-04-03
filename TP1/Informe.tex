@@ -1,0 +1,244 @@
+% pdflatex -shell-escape Informe.tex
+
+\documentclass[a4paper,12pt]{article}
+\usepackage[spanish]{babel} % Soporte en español.
+%\usepackage[latin1]{inputenc} % Caracteres con acentos.
+\usepackage[utf8]{inputenc}
+\usepackage{semantic}
+\usepackage{listings}   %Importar codigo
+%\usepackage{amsmath}
+\usepackage{verbatim}
+\usepackage{latexsym}
+\usepackage{proof}
+\lstset{ %
+  basicstyle=\ttfamily \footnotesize%\scriptsize, %\footnotesize,        % the size of the fonts that are used for the code
+  breakatwhitespace=false,         % sets if automatic breaks should only happen at whitespace
+  breaklines=true,                 % sets automatic line breaking
+  captionpos=t,                    % sets the caption-position to bottom
+  deletekeywords={...},            % if you want to delete keywords from the given language
+  escapeinside={\%*}{*)},          % if you want to add LaTeX within your code
+  extendedchars=true,              % lets you use non-ASCII characters; for 8-bits encodings only, does not work with UTF-8
+  keepspaces=true,                 % keeps spaces in text, useful for keeping indentation of code (possibly needs columns=flexible)
+  language=Haskell,                 % the language of the code
+  morekeywords={*,...},            % if you want to add more keywords to the set
+  numbers=left,                    % where to put the line-numbers; possible values are (none, left, right)
+  numbersep=10pt,                   % how far the line-numbers are from the code
+  showspaces=false,                % show spaces everywhere adding particular underscores; it overrides 'showstringspaces'
+  showstringspaces=false,          % underline spaces within strings only
+  showtabs=false,                  % show tabs within strings adding particular underscores
+  stepnumber=1,                    % the step between two line-numbers. If it's 1, each line will be numbered
+  tabsize=1,                       % sets default tabsize to 2 spaces
+  title=\lstname                   % show the filename of files included with \lstinputlisting; also try caption instead of title
+}
+
+\begin{document}
+
+\title{Análisis de Lenguajes de Programación\\ 
+        Trabajo Práctico 1}
+\author{Lauro Figueroa}
+\date{4 de Septiembre de 2014}
+\maketitle
+\newpage
+
+%\newpage
+
+\section{Ejercicio 2.2.1}
+Para poder incluir a la operación $"?:"$ agrego la siguiente linea a la sintaxis abstracta de LIS:\\
+
+% \langle y \rangle
+%\begin{verbatim}
+\textless $intexp$ \textgreater $::=$ \quad $|$ \textless $boolexp$ \textgreater\ $?$ \textless $intexp$ \textgreater\ $:$ \textless $intexp$ \textgreater \\
+%\end{verbatim}
+
+Además tengo que añadir la siguiente linea a la sintaxis concreta:\\
+
+%\begin{verbatim}
+\textless $intexp$ \textgreater $::=$ \quad $|$ \textless $boolexp$ \textgreater\ '?' \textless\ $intexp$ \textgreater\ ':' \textless $intexp$ \textgreater
+%\end{verbatim}
+
+
+\section{Ejercicio 2.4.1}
+
+Agrego la siguiente linea a la semántica denotacional de expreciones enteras para poder incluir el
+operador ternario:
+
+\[
+|[{p\; ?\ e_1 : e_2}|]_{intexp^{\sigma }} = 
+\left\{
+  \begin{array}{l l}
+    |[e_1|]_{intexp^{\sigma }} & \quad cuando \ |[p|]_{boolexp^{\sigma }} = true\\
+    |[e_2|]_{intexp^{\sigma }} & \quad cuando \ |[p|]_{boolexp^{\sigma }} = false\\
+  \end{array} 
+\right.
+\]
+
+\section{Ejercicio 2.5.1}
+
+Para probar que que la relación de evaluación $\leadsto$ en un paso es determinista, debo 
+probar que si $ \gamma \leadsto \gamma'$ y $\gamma \leadsto \gamma''$ entonces $\gamma' = \gamma''$.
+Donde cada $\gamma$ es un estado (una configuración terminal) o un comando junto con un conjunto de 
+estados (una configuración no terminal).\\
+
+Dem/ Por inducción en la derivación de $ \gamma \leadsto \gamma'$. En cada paso de la derivación
+asumo que la regla vale para el resultado de derivaciones mas chicas y procedo por el análisis
+de la ultima regla de evaluación usada en la derivación.\\
+
+%%%%%%%%
+Si la ultima regla usada en la derivación de $\gamma \leadsto \gamma'$ es ASS entonces sabemos que 
+cada configuración es de la forma:
+
+\begin{itemize}
+  \item $\gamma$ = \textless v ::= e, $\sigma$\textgreater
+  \item $\gamma'$ =  $[ \sigma | v: |[e|]_{intexp^{\sigma}}]$ 
+\end{itemize}
+
+Luego vemos que la ultima regla aplicada en la derivación de $\gamma \leadsto \gamma''$ 
+no puede haber sido otra diferente de ASS por la forma de $\gamma$ que solo admite 
+aplicar esa única regla de inferencia. Entonces claramente $\gamma' = \gamma''$.\\
+
+
+%%%%%%%%
+Si la ultima regla usada en la derivación de $\gamma \leadsto \gamma'$ es SKIP entonces sabemos que 
+cada configuración es de la forma:
+
+\begin{itemize}
+  \item $\gamma$ = \textless skip, $\sigma$\textgreater
+  \item $\gamma'$ =  $\sigma$ 
+\end{itemize}
+
+Luego vemos que la ultima regla aplicada en la derivación de $\gamma \leadsto \gamma''$ 
+no puede haber sido otra diferente de SKIP por la forma de $\gamma$ que solo admite 
+aplicar esa única regla de inferencia. Entonces claramente $\gamma' = \gamma''$.\\
+
+%%%%%%%%
+Si la ultima regla usada en la derivación de $\gamma \leadsto \gamma'$ es $SEQ_{1}$ entonces sabemos que 
+cada configuración es de la forma:
+
+\begin{itemize}
+  \item $\gamma$ = \textless $c_{0};c_{1}$, $\sigma$\textgreater
+  \item $\gamma'$ =  \textless $c_{1}$, $\sigma'$\textgreater
+  \item \textless $c_{0}$, $\sigma$\textgreater \ $\leadsto$\ $\sigma'$
+\end{itemize}
+
+Luego vemos que la ultima regla aplicada en la derivación de $\gamma \leadsto \gamma''$ 
+puede haber sido $SEQ_{2}$ o $SEQ_{1}$ por la forma de $\gamma$ que solo admite 
+aplicar una de estas reglas de inferencia. Supongo que en la derivación de $\gamma''$
+se obtuvo a partir de $SEQ_{2}$, luego 
+
+\begin{itemize}
+  \item $\gamma$ = \textless $c_{0};c_{1}$, $\sigma$\textgreater (ya lo sabíamos)
+  \item $\gamma''$ =  \textless ${c^{'}_{0}};c_{1}$, $\sigma'$\textgreater
+  \item \textless $c_{0}$, $\sigma$\textgreater\ $\leadsto$ \textless ${c_{0}^{'}}$, $\sigma'$\textgreater
+\end{itemize}
+
+Llegamos a una contradicción porque por HI sabemos que para toda expresión mas pequeña vale la 
+propiedad, pero \  \textless $c_{0}$, $\sigma$\textgreater\ $\leadsto$ \textless ${c_{0}^{'}}$, $\sigma'$\textgreater \  \ y \\\textless $c_{0}$, $\sigma$\textgreater\ $\leadsto$  $\sigma'$ y 
+  siendo
+$\sigma'$ $\neq$ \textless ${c_{0}^{'}}$, $\sigma'$\textgreater . Esta contradicción provino de suponer
+ que la ultima regla aplicada fue $SEQ_{2}$. Entonces se obtuvo $\gamma''$ de la regla de 
+inferencia $SEQ_{1}$. Por lo tanto $\gamma' = \gamma''$.\\
+
+%%%%%%%%
+Si la ultima regla usada en la derivación de $\gamma \leadsto \gamma'$ es $SEQ_{2}$, la prueba es 
+análoga a la  de $SEQ_{1}$.\\
+
+\newpage
+%%%%%%%%
+Si la ultima regla usada en la derivación de $\gamma \leadsto \gamma'$ es $IF_{1}$ entonces sabemos que 
+cada configuración es de la forma:
+
+\begin{itemize}
+  \item $\gamma$ = \textless if $b$ then $c_{0}$ else $c_{1}$, $\sigma$\textgreater
+  \item $\gamma'$ =  \textless $c_{0}$, $\sigma$\textgreater
+  \item $|[b|]_{boolexp^{\sigma}}$ = true 
+\end{itemize}
+
+Luego vemos que la ultima regla aplicada en la derivación de $\gamma \leadsto \gamma''$ 
+puede haber sido $IF_{2}$ o $IF_{1}$ por la forma de $\gamma$ que solo admite 
+aplicar una de estas reglas de inferencia, pero como $|[b|]_{boolexp^{\sigma}}$ = true, solo 
+se puede haber sido $IF_{1}$. Por lo tanto $\gamma' = \gamma''$.\\
+
+%%%%%%%%
+Si la ultima regla usada en la derivación de $\gamma \leadsto \gamma'$ es $IF_{2}$, la prueba es 
+análoga a la  de $IF_{1}$.\\
+
+
+%%%%%%%%
+Si la ultima regla usada en la derivación de $\gamma \leadsto \gamma'$ es $WHILE_{1}$ entonces 
+sabemos que cada configuración es de la forma:
+
+\begin{itemize}
+  \item $\gamma$ = \textless while $b$ do $c$, $\sigma$\textgreater
+  \item $\gamma'$ = \textless $c$; while $b$ do $c$, $\sigma$\textgreater 
+  \item $|[b|]_{boolexp^{\sigma}}$ = true 
+\end{itemize}
+
+Luego vemos que la ultima regla aplicada en la derivación de $\gamma \leadsto \gamma''$ 
+puede haber sido $WHILE_{2}$ o $WHILE_{1}$ por la forma de $\gamma$ que solo admite 
+aplicar una de estas reglas de inferencia, pero como $|[b|]_{boolexp^{\sigma}}$ = true, solo 
+se puede haber sido $WHILE_{1}$. Por lo tanto $\gamma' = \gamma''$.\\
+
+%%%%%%%%
+Si la ultima regla usada en la derivación de $\gamma \leadsto \gamma'$ es $WHILE_{2}$, la prueba es 
+análoga a la  de $WHILE_{1}$.\\
+
+
+\newpage
+\section{Ejercicio 2.5.2}
+
+Para construir el árbol de prueba, le asigne a cada configuración una letra para aliviar la lectura.\\
+
+\noindent $O =$ \textless $x ::= x+1$; if $x > 0$ then $skip$ else $x ::= x-1$, $[\sigma|x:0]$\textgreater\\
+$F =$ $[\sigma|x:1]$\\
+$A =$  \textless $x::= x+1$, $[\sigma|x:0]$\textgreater\ $\leadsto$ $[\sigma|x:1]$\\
+$I =$ \textless if $x > 0$ then $skip$ else $x ::= x-1$, $[\sigma|x:1]$\textgreater\\
+$B =$ $|[x > 0|]_{boolexp^{[\sigma|x:1]}}$ = true\\
+$S =$ \textless skip,$[\sigma|x:1]$\textgreater\\
+%    \longrightarrow
+
+$$
+\vcenter{
+\infer[TR_{2}]{O \leadsto^{*} F}{
+    \infer[TR_{1}]{O\leadsto^{*}I}{
+        \infer[SEQ_{1}]{O \leadsto I}{ 
+            \infer[ASS]{A}{}
+        }
+    }
+    &
+    \infer[TR_{2}]{I \leadsto^{*} F}{
+        \infer[TR_{1}]{I \leadsto^{*} S}{
+            \infer[IF_{1}]{I \leadsto S}{B}
+        }
+        & 
+        \infer[TR_{1}]{S \leadsto^{*} F}{
+            \infer[SKIP]{S \leadsto F} {}
+        }
+    }
+}
+}
+$$
+
+\section{Ejercicio 2.5.6}
+
+Reglas de la semántica operacional para until: \\
+
+$$
+\vcenter{
+\infer{(repeat \ c \ until \ b,\sigma) \leadsto (c,\sigma)}{|[b|]_{boolexp^{\sigma}} = true}
+}{}
+\qquad
+\vcenter{
+\infer{(repeat\ c\ unti \ b,\sigma) \leadsto (c;repeat\ c\ until\ b,\sigma)}{|[b|]_{boolexp^{\sigma}} = false}{}
+}
+$$
+\\
+Para extender la gramática abstracta de LIS agrego la siguiente regla a la sintaxis abstracta:\\
+
+\textless $comm$\textgreater $::=$ \quad $|$ repeat \textless $intexp$ \textgreater\ until \textless $boolexp$ \textgreater \\
+
+\newpage
+\lstinputlisting{AST.hs}
+\lstinputlisting{Eval1.hs}
+\lstinputlisting{Eval2.hs}
+\lstinputlisting{Eval3.hs}
+\end{document}

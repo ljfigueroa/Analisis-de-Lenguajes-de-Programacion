@@ -11,7 +11,7 @@ import Parser(parser)
 
 
 -- Modificar este import para usar diferentes evaluadores
-import Eval3
+import Eval2
 ---------------------------------------------------------
 
 main :: IO ()
