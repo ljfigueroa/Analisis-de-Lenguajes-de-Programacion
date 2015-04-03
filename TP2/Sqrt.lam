@@ -1,0 +1,6 @@
+
+-- resta
+def resta = \n m . m pred n
+
+-- sqrt
+def sqrt = (\p . (Y (\f n x. (is0(resta (mult x x) n)) x (f n (pred x)))) p p)

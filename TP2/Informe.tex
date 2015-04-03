@@ -1,0 +1,111 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[spanish]{babel} % Soporte en español.
+%\usepackage[latin1]{inputenc} % Caracteres con acentos.
+\usepackage[utf8]{inputenc}
+\usepackage{semantic}
+\usepackage{listings}   %Importar codigo
+%\usepackage{amsmath}
+\usepackage{verbatim}
+\usepackage{latexsym}
+\usepackage{listingsutf8}
+\usepackage{minted}
+
+\lstset{ 
+  inputencoding=utf8/latin1,
+  basicstyle=\ttfamily \footnotesize,%\scriptsize, %\footnotesize,        % the size of the fonts that are used for the code
+  breakatwhitespace=false,         % sets if automatic breaks should only happen at whitespace
+  breaklines=false,                 % sets automatic line breaking
+  captionpos=t,                    % sets the caption-position to bottom
+  deletekeywords={...},            % if you want to delete keywords from the given language
+  escapeinside={\%*}{*)},          % if you want to add LaTeX within your code
+  extendedchars=true,              % lets you use non-ASCII characters; for 8-bits encodings only, does not work with UTF-8
+  keepspaces=true,                 % keeps spaces in text, useful for keeping indentation of code (possibly needs columns=flexible)
+  language=Haskell,                 % the language of the code
+  %morekeywords={*,...},            % if you want to add more keywords to the set
+  numbers=left,                    % where to put the line-numbers; possible values are (none, left, right)
+  numbersep=10pt,                   % how far the line-numbers are from the code
+  showspaces=false,                % show spaces everywhere adding particular underscores; it overrides 'showstringspaces'
+  showstringspaces=false,          % underline spaces within strings only
+  showtabs=false,                  % show tabs within strings adding particular underscores
+  stepnumber=1,                    % the step between two line-numbers. If it's 1, each line will be numbered
+  tabsize=1,                       % sets default tabsize to 2 spaces
+  title=\lstname                   % show the filename of files included with \lstinputlisting; also try caption instead of title
+}
+
+\begin{document}
+
+\title{Análisis de Lenguajes de Programación\\ 
+        Trabajo Práctico 2}
+\author{Lauro Figueroa}
+\date{2 de Octubre de 2014}
+\maketitle
+
+\pagenumbering{gobble} 
+\newpage
+\pagenumbering{arabic}
+
+\section*{Ejercicio 2}
+
+\subsection*{Gramática extendida del $\lambda$-cálculo}
+
+\iffalse
+\begin{minted}{text}
+Term ::= Var | '\' Var '.' Term | Term Term | '(' Term ')' 
+Var ::= 'a' | ... | 'z'
+\end{minted}
+
+
+\begin{minted}{text}
+Term ::= NApp | Term NApp
+NApp ::= Var | '\' Var '.' Term | '(' Term ')'
+Var ::= 'a' | ... | 'z'
+\end{minted}
+\fi
+
+\begin{minted}{text}
+Term ::= NApp | Term NApp
+NAbs ::= Atom | NAbs NApp
+NApp ::= Atom | Abs
+Atom ::= Var  | '(' Term ')'
+Abs  ::= '\ ' Vars '.' Term 
+Vars ::= Var | Var Vars
+Var  ::= 'a' | ... | 'z'
+\end{minted}
+
+La gramática presentada cumple con las convenciones que se usan para escribir
+$\lambda$-términos pero  presenta el problema de recursión a izquierda.
+Una solución es transformar la gramática a una equivalente donde se elimine la
+recursión a izquierda.
+
+\subsection*{Transformación de la gramática del $\lambda$-cálculo}
+
+\begin{minted}{text}
+Term ::= NApp | Term NApp
+NAbs ::= Atom NAbs'
+NAbs'::= e    | NApp NAbs'
+NApp ::= Atom | Abs
+Atom ::= Var  | '(' Term ')'
+Abs  ::= '\' Vars '.' Term 
+Vars ::= Var | Var Vars
+Var  ::= 'a' | ... | 'z'
+\end{minted}
+
+Un nuevo problema surgió, al transformar la gramática a otra que no tenga
+recursión a izquierda, la misma perdió la asociatividad a izquierda necesaria para 
+respetar las convenciones, este problema lo resuelvo en la implementación 
+donde busco los Atom y los asocio de manera correcta con una función auxiliar,
+evitando así el problema.
+
+\section*{Ejecicio 7}
+La implementación ofrecida en $\lambda$-cálculo de la función raíz cuadrada es parcial.
+
+
+\newpage
+\section*{\centering Codigo fuente}
+\subsection*{Untyped.hs}
+\inputminted{haskell}{Untyped.hs}
+\subsection*{Sqrt.lam}
+\inputminted{haskell}{Sqrt.lam}
+%\lstinputlisting{Untyped.hs}
+%\lstinputlisting{Sqrt.lam}
+\end{document}
