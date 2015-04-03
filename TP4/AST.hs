@@ -5,24 +5,23 @@ type Variable = String
 
 -- Expresiones Aritmeticas
 data IntExp = Const Int
-    | Var Variable
-    | UMinus IntExp
-    | Plus IntExp IntExp
-    | Minus IntExp IntExp
-    | Times IntExp IntExp
-    | Div IntExp IntExp
-    | P BoolExp IntExp IntExp
+	    | Var Variable
+	    | UMinus IntExp
+	    | Plus IntExp IntExp
+	    | Minus IntExp IntExp
+	    | Times IntExp IntExp
+	    | Div IntExp IntExp
  deriving Show
 
 -- Expresiones Booleanas
 data BoolExp = BTrue
-    | BFalse
-    | Eq IntExp IntExp
-    | Lt IntExp IntExp
-    | Gt IntExp IntExp
-    | And BoolExp BoolExp
-    | Or BoolExp BoolExp
-    | Not BoolExp
+	     | BFalse
+	     | Eq IntExp IntExp
+	     | Lt IntExp IntExp
+	     | Gt IntExp IntExp
+	     | And BoolExp BoolExp
+	     | Or BoolExp BoolExp
+	     | Not BoolExp
  deriving Show
 
 -- Comandos (sentencias)
